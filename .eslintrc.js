@@ -14,5 +14,7 @@ module.exports = {
     sourceType: 'module'
   },
   plugins: ['react', 'prettier'],
-  rules: {}
+  rules: {
+    'react/no-unescaped-entities': 'off'
+  }
 };

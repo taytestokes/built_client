@@ -5,6 +5,8 @@ import emotionReset from 'emotion-reset';
 
 import { LoginPage } from './components/LoginPage';
 
+// TODO: Rethink reset css and fonts
+
 ReactDOM.render(
   <ThemeProvider theme={{}}>
     <Global
