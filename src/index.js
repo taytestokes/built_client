@@ -5,10 +5,11 @@ import emotionReset from 'emotion-reset';
 
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
-import { RequireAuth } from './components/RequireAuth';
-
+import { RequireAuthRoute } from './components/RequireAuthRoute';
+import { PersistLoginRoute } from './components/PersistLoginRoute';
 import { RegisterPage } from './components/RegisterPage';
-import { DashboardPage } from './pages/DashboardPage';
+import { LoginPage } from './components/LoginPage';
+import { DashboardPage } from './components/DashboardPage';
 
 // TODO: Rethink reset css and fonts
 
@@ -43,6 +44,9 @@ ReactDOM.render(
             <Link to="/">Home</Link>
           </li>
           <li>
+            <Link to="/login">Login</Link>
+          </li>
+          <li>
             <Link to="/register">Register</Link>
           </li>
           <li>
@@ -54,10 +58,13 @@ ReactDOM.render(
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<LoginPage />} />
 
           {/* Protected Routes */}
-          <Route element={<RequireAuth />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
+          <Route element={<PersistLoginRoute />}>
+            <Route element={<RequireAuthRoute />}>
+              <Route path="/dashboard" element={<DashboardPage />} />
+            </Route>
           </Route>
 
           {/* Fallback Routes */}

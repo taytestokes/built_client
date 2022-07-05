@@ -1,32 +1,44 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { useUserStore } from '../zustand/userStore';
 
-export const RegisterPage = () => {
+export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const updateUser = useUserStore((state) => state.updateUser);
+
+  const navigate = useNavigate();
 
   const handleFormSubmit = async (evt) => {
     evt.preventDefault();
 
     axios
-      .post('http://localhost:4000/api/auth/register', {
-        user: {
-          email,
-          password
+      .post(
+        'http://localhost:4000/api/auth/login',
+        {
+          user: {
+            email,
+            password
+          }
+        },
+        // Must apply withCredentials to allow response cookies
+        // to be set to the browser - this will contain the refresh token generate
+        // upon logging in
+        {
+          withCredentials: true
         }
-      })
+      )
       .then(({ data }) => {
+        // Update user state slice
         updateUser({
           id: data.user_id,
           email: data.user_email,
           accessToken: data.access_token
         });
+        navigate('/dashboard');
       });
   };
 
@@ -55,20 +67,9 @@ export const RegisterPage = () => {
           />
         </FormLabelInputSpacer>
 
-        <FormLabelInputSpacer>
-          <FormLabel htmlFor="password-confirmation">Confirm Password</FormLabel>
-          <FormInput
-            autoComplete="off"
-            id="password-confirmation"
-            type="password"
-            onChange={(evt) => setPasswordConfirmation(evt.target.value)}
-            value={passwordConfirmation}
-          />
-        </FormLabelInputSpacer>
+        <FormButton type="submit" value="Sign In" />
 
-        <FormButton type="submit" value="Register" />
-
-        <FormLink to="/login">Already have an account?</FormLink>
+        <FormLink to="/register">Don't have an account?</FormLink>
       </Form>
     </Container>
   );
