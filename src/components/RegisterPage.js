@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import validator from 'validator';
 import axios from 'axios';
@@ -7,18 +7,18 @@ import { useForm } from '../hooks/useForm';
 import { useUserStore } from '../zustand/userStore';
 
 export const RegisterPage = () => {
+  // TODO: Handle errors that occur due to restrictions in database
+  // TODO: Better UI/UX for displaying validation errrors on form
+  const [submissionError, setSubmissionError] = useState('');
   const updateUser = useUserStore((state) => state.updateUser);
-
   const navigate = useNavigate();
 
   const { formData, errors, handleFormInputChange, handleFormSubmission } = useForm(
-    // Form Data
     {
       email: '',
       password: '',
       passwordConfirmation: ''
     },
-    // Form Submission Callback
     async (formData) => {
       try {
         const response = await axios.post('http://localhost:4000/api/auth/register', {
@@ -31,35 +31,32 @@ export const RegisterPage = () => {
         });
         navigate('/dashboard');
       } catch (error) {
-        console.log(error);
+        // DO SOMETHING WITH THE NETWORK REQUEST ERRORS
       }
     },
-    // Form Validation Callback
     (formData) => {
       const formErrors = {};
-      // Email Validation
+
       if (!validator.isEmail(formData.email)) {
         formErrors.email = 'Invalid email address.';
       }
       if (validator.isEmpty(formData.email)) {
         formErrors.email = 'Email address is required';
       }
-      // Password and Password Confirmation Match
       if (formData.password !== formData.passwordConfirmation) {
         formErrors.password = 'Must match confirmation.';
         formErrors.passwordConfirmation = 'Must match password.';
       }
-      // Password Validation
       if (!validator.isLength(formData.password, { min: 8 })) {
         formErrors.password = 'Password must be atleast 8 characters.';
       }
       if (validator.isEmpty(formData.password)) {
         formErrors.password = 'Password is required.';
       }
-      // Password Confirmation Validation
       if (validator.isEmpty(formData.passwordConfirmation)) {
         formErrors.passwordConfirmation = 'Password confirmation is required.';
       }
+
       return formErrors;
     }
   );
