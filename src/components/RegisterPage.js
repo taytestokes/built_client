@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from '@emotion/styled';
 import validator from 'validator';
 import axios from 'axios';
@@ -6,14 +6,24 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from '../hooks/useForm';
 import { useUserStore } from '../zustand/userStore';
 
+const ERROR_MESSAGES = {
+  INVALID_EMAIL: 'Invalid email address.',
+  EMAIL_REQUIRED: 'Email address is required',
+  PASSWORD_REQUIRED: 'Password is required.',
+  INVALID_PASSWORD_LENGTH: 'Password must be atleast 8 characters.',
+  PASSWORD_CONFIRMATION_REQUIRED: 'Password confirmation is required.',
+  PASSWORD_MUST_MATCH: 'Must match confirmation.',
+  PASSWORD_CONFIRMATION_MUST_MATCH: 'Must match password.'
+};
+
 export const RegisterPage = () => {
-  // TODO: Handle errors that occur due to restrictions in database
-  // TODO: Better UI/UX for displaying validation errrors on form
-  const [submissionError, setSubmissionError] = useState('');
+  // TODO: Handle formErrors that occur due to restrictions in database
+  // TODO: Better UI/UX for displaying validation errors when modifying
+  // a single input.
   const updateUser = useUserStore((state) => state.updateUser);
   const navigate = useNavigate();
 
-  const { formData, errors, handleFormInputChange, handleFormSubmission } = useForm(
+  const { formData, formErrors, handleFormInputChange, handleFormSubmission } = useForm(
     {
       email: '',
       password: '',
@@ -21,9 +31,18 @@ export const RegisterPage = () => {
     },
     async (formData) => {
       try {
-        const response = await axios.post('http://localhost:4000/api/auth/register', {
-          user: formData
-        });
+        const response = await axios.post(
+          'http://localhost:4000/api/auth/register',
+          {
+            user: {
+              email: formData.email,
+              password: formData.password
+            }
+          },
+          {
+            withCredentials: true
+          }
+        );
         updateUser({
           id: response.data.user_id,
           email: response.data.user_email,
@@ -31,30 +50,49 @@ export const RegisterPage = () => {
         });
         navigate('/dashboard');
       } catch (error) {
-        // DO SOMETHING WITH THE NETWORK REQUEST ERRORS
+        // DO SOMETHING WITH THE NETWORK REQUEST formErrors
       }
     },
+    // TODO: Revist this to not be so WET?
     (formData) => {
-      const formErrors = {};
-
+      const formErrors = { ...formData };
+      // Email
       if (!validator.isEmail(formData.email)) {
-        formErrors.email = 'Invalid email address.';
+        formErrors.email = ERROR_MESSAGES.INVALID_EMAIL;
       }
       if (validator.isEmpty(formData.email)) {
-        formErrors.email = 'Email address is required';
+        formErrors.email = ERROR_MESSAGES.EMAIL_REQUIRED;
       }
+      if (validator.isEmail(formData.email) && !validator.isEmpty(formData.email)) {
+        formErrors.email = '';
+      }
+
+      // Password and Password Confirmation
       if (formData.password !== formData.passwordConfirmation) {
-        formErrors.password = 'Must match confirmation.';
-        formErrors.passwordConfirmation = 'Must match password.';
+        formErrors.password = ERROR_MESSAGES.PASSWORD_MUST_MATCH;
+        formErrors.passwordConfirmation = ERROR_MESSAGES.PASSWORD_CONFIRMATION_MUST_MATCH;
       }
+
+      // Password
       if (!validator.isLength(formData.password, { min: 8 })) {
-        formErrors.password = 'Password must be atleast 8 characters.';
+        formErrors.password = ERROR_MESSAGES.INVALID_PASSWORD_LENGTH;
       }
       if (validator.isEmpty(formData.password)) {
-        formErrors.password = 'Password is required.';
+        formErrors.password = ERROR_MESSAGES.PASSWORD_REQUIRED;
       }
+
+      // Password Confirmation
       if (validator.isEmpty(formData.passwordConfirmation)) {
-        formErrors.passwordConfirmation = 'Password confirmation is required.';
+        formErrors.passwordConfirmation = ERROR_MESSAGES.PASSWORD_CONFIRMATION_REQUIRED;
+      }
+
+      if (
+        formData.password === formData.passwordConfirmation &&
+        !validator.isEmpty(formData.password) &&
+        !validator.isEmpty(formData.passwordConfirmation)
+      ) {
+        formErrors.password = '';
+        formErrors.passwordConfirmation = '';
       }
 
       return formErrors;
@@ -67,23 +105,24 @@ export const RegisterPage = () => {
         <FormLabelInputSpacer>
           <FormLabel htmlFor="email">
             <LabelMessage>Email</LabelMessage>
-            {errors.email && <LabelError>{errors.email}</LabelError>}
+            {formErrors.email && <LabelError>{formErrors.email}</LabelError>}
           </FormLabel>
           <FormInput
+            autoFocus={true}
             autoComplete="off"
             id="email"
             name="email"
             type="text"
             onChange={handleFormInputChange}
             value={formData.email}
-            error={errors.email}
+            error={formErrors.email}
           />
         </FormLabelInputSpacer>
 
         <FormLabelInputSpacer>
           <FormLabel htmlFor="password">
             <LabelMessage>Password</LabelMessage>
-            {errors.password && <LabelError>{errors.password}</LabelError>}
+            {formErrors.password && <LabelError>{formErrors.password}</LabelError>}
           </FormLabel>
           <FormInput
             autoComplete="off"
@@ -92,14 +131,16 @@ export const RegisterPage = () => {
             type="password"
             onChange={handleFormInputChange}
             value={formData.password}
-            error={errors.password}
+            error={formErrors.password}
           />
         </FormLabelInputSpacer>
 
         <FormLabelInputSpacer>
           <FormLabel htmlFor="passwordConfirmation">
             <LabelMessage>Confirm Password</LabelMessage>
-            {errors.passwordConfirmation && <LabelError>{errors.passwordConfirmation}</LabelError>}
+            {formErrors.passwordConfirmation && (
+              <LabelError>{formErrors.passwordConfirmation}</LabelError>
+            )}
           </FormLabel>
           <FormInput
             autoComplete="off"
@@ -108,7 +149,7 @@ export const RegisterPage = () => {
             type="password"
             onChange={handleFormInputChange}
             value={formData.passwordConfirmation}
-            error={errors.passwordConfirmation}
+            error={formErrors.passwordConfirmation}
           />
         </FormLabelInputSpacer>
 
