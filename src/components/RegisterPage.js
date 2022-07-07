@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import validator from 'validator';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from '../hooks/useForm';
 import { useUserStore } from '../zustand/userStore';
+import { FiAlertCircle as AlertIcon } from 'react-icons/fi';
 
 const ERROR_MESSAGES = {
   INVALID_EMAIL: 'Invalid email address.',
@@ -17,9 +18,9 @@ const ERROR_MESSAGES = {
 };
 
 export const RegisterPage = () => {
-  // TODO: Handle formErrors that occur due to restrictions in database
   // TODO: Better UI/UX for displaying validation errors when modifying
   // a single input.
+  const [errorMessage, setErrorMessage] = useState('');
   const updateUser = useUserStore((state) => state.updateUser);
   const navigate = useNavigate();
 
@@ -49,11 +50,12 @@ export const RegisterPage = () => {
           accessToken: response.data.access_token
         });
         navigate('/dashboard');
-      } catch (error) {
-        // DO SOMETHING WITH THE NETWORK REQUEST formErrors
+      } catch ({ response }) {
+        response.data
+          ? setErrorMessage(response.data.error)
+          : setErrorMessage('Sorry, the server is currently unavailble');
       }
     },
-    // TODO: Revist this to not be so WET?
     (formData) => {
       const formErrors = { ...formData };
       // Email
@@ -102,6 +104,13 @@ export const RegisterPage = () => {
   return (
     <Container>
       <Form onSubmit={handleFormSubmission}>
+        {errorMessage ? (
+          <ErrorMessage>
+            <AlertIcon />
+            {errorMessage}
+          </ErrorMessage>
+        ) : null}
+
         <FormLabelInputSpacer>
           <FormLabel htmlFor="email">
             <LabelMessage>Email</LabelMessage>
@@ -178,6 +187,7 @@ const Form = styled.form`
   flex-direction: column;
   align-items: center;
   gap: 32px;
+  position: relative;
 `;
 
 const FormLabelInputSpacer = styled.div`
@@ -252,4 +262,19 @@ const FormLink = styled(Link)`
   color: #2563eb;
   font-size: 14px;
   font-weight: bold;
+`;
+
+const ErrorMessage = styled.div`
+  width: 100%;
+  padding: 24px 12px;
+  color: #dc2626;
+  fill: #dc2626;
+  background-color: #fef2f2;
+  border-radius: 4px;
+  border: 1px solid #dc2626;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
 `;

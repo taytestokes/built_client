@@ -46,7 +46,9 @@ export const useForm = (initialState = {}, sumbitHandler = () => {}, validateFor
   // value of the input so we display the correct error message upon input change.
   useEffect(() => {
     if (!initialRender.current) {
-      setFormErrors((prevErrors) => ({ ...prevErrors, ...validateFormData(formData) }));
+      if (validateFormData && isFunction(validateFormData)) {
+        setFormErrors((prevErrors) => ({ ...prevErrors, ...validateFormData(formData) }));
+      }
     }
   }, [formData]);
 
