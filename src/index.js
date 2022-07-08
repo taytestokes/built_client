@@ -41,8 +41,10 @@ ReactDOM.render(
     <Router>
       <Routes>
         {/* Public Routes */}
+        <Route path="/" element={<Home />} />
+
+        {/* Prevent Authed Users */}
         <Route element={<RedirectToDashboardRoute />}>
-          <Route path="/" element={<Home />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
         </Route>
