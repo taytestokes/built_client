@@ -3,20 +3,9 @@ import ReactDOM from 'react-dom';
 import { css, Global, ThemeProvider } from '@emotion/react';
 import emotionReset from 'emotion-reset';
 
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
-import { RequireAuthRoute } from './components/RequireAuthRoute';
-import { PersistLoginRoute } from './components/PersistLoginRoute';
-import { RedirectToDashboardRoute } from './components/RedirectToDashboardRoute';
-import { RegisterPage } from './components/RegisterPage';
-import { LoginPage } from './components/LoginPage';
-import { DashboardPage } from './components/DashboardPage';
+import { Router } from './routes/Router';
 
 // TODO: Rethink reset css and fonts
-
-const Home = () => <div>This is the home page</div>;
-const Fallback = () => <div>This is the fallback page</div>;
-
 ReactDOM.render(
   <ThemeProvider theme={{}}>
     <Global
@@ -37,29 +26,7 @@ ReactDOM.render(
         }
       `}
     />
-    {/* Router - Can be moved later? */}
-    <Router>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
-
-        {/* Prevent Authed Users */}
-        <Route element={<RedirectToDashboardRoute />}>
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/login" element={<LoginPage />} />
-        </Route>
-
-        {/* Protected Routes */}
-        <Route element={<PersistLoginRoute />}>
-          <Route element={<RequireAuthRoute />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
-          </Route>
-        </Route>
-
-        {/* Fallback Routes */}
-        <Route path="/*" element={<Fallback />} />
-      </Routes>
-    </Router>
+    <Router />
   </ThemeProvider>,
   document.getElementById('root')
 );
