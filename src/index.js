@@ -3,10 +3,11 @@ import ReactDOM from 'react-dom';
 import { css, Global, ThemeProvider } from '@emotion/react';
 import emotionReset from 'emotion-reset';
 
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import { RequireAuthRoute } from './components/RequireAuthRoute';
 import { PersistLoginRoute } from './components/PersistLoginRoute';
+import { RedirectToDashboardRoute } from './components/RedirectToDashboardRoute';
 import { RegisterPage } from './components/RegisterPage';
 import { LoginPage } from './components/LoginPage';
 import { DashboardPage } from './components/DashboardPage';
@@ -38,36 +39,24 @@ ReactDOM.render(
     />
     {/* Router - Can be moved later? */}
     <Router>
-      <div>
-        <ul>
-          <li>
-            <Link to="/login">Login</Link>
-          </li>
-          <li>
-            <Link to="/register">Register</Link>
-          </li>
-          <li>
-            <Link to="/dashboard">Dashboard</Link>
-          </li>
-        </ul>
-
-        <Routes>
-          {/* Public Routes */}
+      <Routes>
+        {/* Public Routes */}
+        <Route element={<RedirectToDashboardRoute />}>
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
+        </Route>
 
-          {/* Protected Routes */}
-          <Route element={<PersistLoginRoute />}>
-            <Route element={<RequireAuthRoute />}>
-              <Route path="/dashboard" element={<DashboardPage />} />
-            </Route>
+        {/* Protected Routes */}
+        <Route element={<PersistLoginRoute />}>
+          <Route element={<RequireAuthRoute />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
           </Route>
+        </Route>
 
-          {/* Fallback Routes */}
-          <Route path="/*" element={<Fallback />} />
-        </Routes>
-      </div>
+        {/* Fallback Routes */}
+        <Route path="/*" element={<Fallback />} />
+      </Routes>
     </Router>
   </ThemeProvider>,
   document.getElementById('root')
