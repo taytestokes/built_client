@@ -4,7 +4,7 @@ import { useUserStore } from '../zustand/userStore';
 import styled from '@emotion/styled';
 import axios from 'axios';
 
-import { LoadingSpinner } from './LoadingSpinner';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export const PersistLoginRoute = () => {
   const [isLoading, setIsLoading] = useState(true);

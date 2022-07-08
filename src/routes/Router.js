@@ -1,12 +1,13 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import { RequireAuthRoute } from './components/RequireAuthRoute';
-import { PersistLoginRoute } from './components/PersistLoginRoute';
-import { RedirectToDashboardRoute } from './components/RedirectToDashboardRoute';
-import { RegisterPage } from './components/RegisterPage';
-import { LoginPage } from './components/LoginPage';
-import { DashboardPage } from './components/DashboardPage';
+import { RequireAuthRoute } from './RequireAuthRoute';
+import { PersistLoginRoute } from './PersistLoginRoute';
+import { RedirectToDashboardRoute } from './RedirectToDashboardRoute';
+
+import { RegisterPage } from '../components/RegisterPage';
+import { LoginPage } from '../components/LoginPage';
+import { DashboardPage } from '../components/DashboardPage';
 
 const Home = () => <div>This is the home page</div>;
 const Fallback = () => <div>This is the fallback page</div>;
